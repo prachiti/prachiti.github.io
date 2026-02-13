@@ -499,11 +499,11 @@
 <body>
     <div id="loginScreen" class="login-screen">
         <div class="login-box">
-            <h1>🎯</h1>
+            <h1>🚀</h1>
             <h1>Momentum</h1>
-            <p>Pick a username to get started</p>
-            <input type="text" id="usernameInput" class="login-input" placeholder="Your username" maxlength="20">
-            <button onclick="login()" class="login-button">Start Tracking</button>
+            <p>Sign in with Google to get started</p>
+            <div id="googleSignInButton" style="display: flex; justify-content: center; margin: 20px 0;"></div>
+            <p style="color: #999; font-size: 0.9em; text-align: center; margin-top: 20px;">Your data syncs to your Google Drive</p>
         </div>
     </div>
 
@@ -962,7 +962,7 @@
 
     <script>
         // ===== GOOGLE DRIVE SYNC =====
-        const GOOGLE_CLIENT_ID = '1063975145667-okf0c2dgda4a0bfmlm9tlianr564ugm2.apps.googleusercontent.com';
+        const GOOGLE_CLIENT_ID = '178348016441-ipesfmo0qld6s9f3ilcqavvsijb4kdjg.apps.googleusercontent.com';
         let googleAuth = null;
         let googleAccessToken = null;
         let spreadsheetId = null;
@@ -989,27 +989,54 @@
         }
         
         function setupGoogleSignIn() {
-            google.accounts.id.initialize({
-                client_id: GOOGLE_CLIENT_ID,
-                callback: handleCredentialResponse
-            });
-            if (document.getElementById('googleSignInButton')) {
-                google.accounts.id.renderButton(
-                    document.getElementById('googleSignInButton'),
-                    { theme: 'outline', size: 'large', text: 'signin_with' }
-                );
+            // Check if Client ID is set
+            if (!GOOGLE_CLIENT_ID || GOOGLE_CLIENT_ID.includes('YOUR_CLIENT_ID')) {
+                const container = document.getElementById('googleSignInButton');
+                if (container) {
+                    container.innerHTML = '<p style="color: red; font-size: 0.9em;">⚠️ Please add your Google Client ID to the code</p>';
+                }
+                return;
+            }
+            
+            try {
+                google.accounts.id.initialize({
+                    client_id: GOOGLE_CLIENT_ID,
+                    callback: handleCredentialResponse
+                });
+                
+                const container = document.getElementById('googleSignInButton');
+                if (container) {
+                    google.accounts.id.renderButton(
+                        container,
+                        { theme: 'outline', size: 'large', text: 'signin_with' }
+                    );
+                }
+            } catch (error) {
+                console.error('Error setting up Google Sign-In:', error);
             }
         }
         
         function handleCredentialResponse(response) {
             googleAccessToken = response.credential;
             const payload = JSON.parse(atob(response.credential.split('.')[1]));
-            console.log('✅ Signed in as:', payload.email);
-            if (document.getElementById('googleSignInButton')) document.getElementById('googleSignInButton').style.display = 'none';
+            
+            // Use Google email as the user identifier
+            currentUsername = payload.email;
+            localStorage.setItem('jobTrackerUsername', currentUsername);
+            
+            console.log('✅ Signed in as:', currentUsername);
+            
+            if (document.getElementById('googleSignInButton')) {
+                document.getElementById('googleSignInButton').style.display = 'none';
+            }
             if (document.getElementById('userEmail')) {
-                document.getElementById('userEmail').textContent = payload.email;
+                document.getElementById('userEmail').textContent = currentUsername;
                 document.getElementById('userEmail').style.display = 'block';
             }
+            
+            // Load user data and show app
+            loadUserData();
+            showApp();
             initializeSync();
         }
         
@@ -1537,28 +1564,36 @@ KEY PRINCIPLES:
                 currentUsername = savedUser;
                 await loadUserData();
                 showApp();
+            } else {
+                // Try to setup Google Sign-In if not already done
+                if (typeof google !== 'undefined' && google.accounts) {
+                    setupGoogleSignIn();
+                } else {
+                    // Setup will be called by onGapiLoad when Google API loads
+                    console.log('Waiting for Google API to load...');
+                    
+                    // Fallback: try again after 2 seconds
+                    setTimeout(() => {
+                        if (typeof google !== 'undefined' && google.accounts) {
+                            console.log('Google API loaded, setting up sign-in...');
+                            setupGoogleSignIn();
+                        }
+                    }, 2000);
+                }
             }
         }
 
         // Login
-        async function login() {
-            const username = document.getElementById('usernameInput').value.trim();
-            if (!username) {
-                alert('Please enter a username');
-                return;
-            }
-            
-            currentUsername = username;
-            localStorage.setItem('jobTrackerUsername', username);
-            await loadUserData();
-            showApp();
-        }
+        // Old login function removed - now uses Google Sign-In
 
         // Logout
         function logout() {
             if (confirm('Are you sure you want to logout?')) {
                 localStorage.removeItem('jobTrackerUsername');
                 currentUsername = null;
+                googleAccessToken = null;
+                spreadsheetId = null;
+                if (syncInterval) clearInterval(syncInterval);
                 document.getElementById('loginScreen').style.display = 'flex';
                 document.getElementById('appContainer').style.display = 'none';
             }
@@ -2808,11 +2843,6 @@ KEY PRINCIPLES:
 
         // Enter key to login
         document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('usernameInput').addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    login();
-                }
-            });
             init();
         });
     </script>
