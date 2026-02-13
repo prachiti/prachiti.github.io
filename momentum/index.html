@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Momentum - Job Search Companion</title>
+    <title>Momentum - Multi-User</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://www.gstatic.com/client?onload=onGapiLoad&async=true"></script>
     <style>
         * {
             margin: 0;
@@ -13,69 +15,64 @@
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: #f8f9fa;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 0;
+            padding: 20px;
         }
         
         .container {
-            max-width: 100%;
-            margin: 0;
+            max-width: 1200px;
+            margin: 0 auto;
             background: white;
-            border-radius: 0;
-            box-shadow: none;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             overflow: hidden;
         }
         
         .header {
-            background: white;
-            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
             padding: 20px 30px;
             text-align: center;
             position: relative;
-            border-bottom: 1px solid #e0e0e0;
         }
         
         .header h1 {
             font-size: 1.6em;
             margin-bottom: 5px;
-            color: #333;
         }
         
         .header p {
-            opacity: 0.7;
+            opacity: 0.9;
             font-size: 0.95em;
-            color: #666;
         }
         
         .user-badge {
             position: absolute;
             top: 20px;
             right: 30px;
-            background: #f0f0f0;
+            background: rgba(255,255,255,0.2);
             padding: 8px 20px;
             border-radius: 20px;
             font-size: 0.9em;
             display: flex;
             align-items: center;
             gap: 8px;
-            color: #333;
         }
         
         .logout-btn {
-            background: #e0e0e0;
+            background: rgba(255,255,255,0.3);
             border: none;
-            color: #333;
+            color: white;
             padding: 4px 12px;
             border-radius: 12px;
             cursor: pointer;
             font-size: 0.85em;
             margin-left: 10px;
-            transition: all 0.3s;
         }
         
         .logout-btn:hover {
-            background: #d0d0d0;
+            background: rgba(255,255,255,0.4);
         }
         
         .login-screen {
@@ -84,22 +81,20 @@
             justify-content: center;
             min-height: 100vh;
             padding: 20px;
-            background: #f8f9fa;
         }
         
         .login-box {
             background: white;
             padding: 50px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             max-width: 400px;
             width: 100%;
             text-align: center;
-            border: 1px solid #e0e0e0;
         }
         
         .login-box h1 {
-            color: #333;
+            color: #667eea;
             font-size: 2.5em;
             margin-bottom: 10px;
         }
@@ -225,268 +220,6 @@
         
         .add-button:hover {
             transform: translateY(-2px);
-        }
-        
-        /* Statistics Dashboard */
-        .stats-dashboard {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 12px;
-            margin-bottom: 25px;
-        }
-        
-        .stat-card {
-            background: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 15px;
-            text-align: center;
-            transition: all 0.3s;
-        }
-        
-        .stat-card:hover {
-            border-color: #667eea;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
-            transform: translateY(-2px);
-        }
-        
-        .stat-value {
-            font-size: 2em;
-            font-weight: 700;
-            color: #667eea;
-            margin-bottom: 5px;
-        }
-        
-        .stat-label {
-            color: #666;
-            font-size: 0.8em;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        /* Search and Filter */
-        .search-filter-container {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-        
-        .search-input {
-            flex: 1;
-            min-width: 200px;
-            padding: 10px 15px;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 0.95em;
-            transition: all 0.3s;
-        }
-        
-        .search-input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-        
-        .filter-select {
-            padding: 10px 15px;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 0.95em;
-            background: white;
-            cursor: pointer;
-            transition: all 0.3s;
-            min-width: 150px;
-        }
-        
-        .filter-select:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-        
-        /* Template Buttons */
-        .template-btn {
-            padding: 8px 16px;
-            background: white;
-            border: 2px solid #ffc107;
-            color: #856404;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.85em;
-            transition: all 0.3s;
-        }
-        
-        .template-btn:hover {
-            background: #ffc107;
-            color: white;
-            transform: translateY(-2px);
-        }
-        
-        /* Timeline View */
-        .timeline-view {
-            position: relative;
-        }
-        
-        .timeline-item {
-            display: flex;
-            margin-bottom: 20px;
-            position: relative;
-            padding-left: 40px;
-        }
-        
-        .timeline-item::before {
-            content: '';
-            position: absolute;
-            left: 12px;
-            top: 5px;
-            width: 12px;
-            height: 12px;
-            background: #667eea;
-            border-radius: 50%;
-            border: 3px solid white;
-            box-shadow: 0 0 0 2px #667eea;
-        }
-        
-        .timeline-item::after {
-            content: '';
-            position: absolute;
-            left: 17px;
-            top: 20px;
-            width: 2px;
-            height: calc(100% + 20px);
-            background: #e0e0e0;
-        }
-        
-        .timeline-item:last-child::after {
-            display: none;
-        }
-        
-        .timeline-content {
-            background: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 15px;
-            flex: 1;
-        }
-        
-        .timeline-date {
-            font-weight: 600;
-            color: #667eea;
-            font-size: 0.9em;
-        }
-        
-        .timeline-title {
-            color: #333;
-            margin: 5px 0;
-            font-weight: 600;
-        }
-        
-        .timeline-desc {
-            color: #666;
-            font-size: 0.9em;
-        }
-        
-        /* Resume Management */
-        .resume-card {
-            background: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .resume-info {
-            flex: 1;
-        }
-        
-        .resume-name {
-            font-weight: 600;
-            color: #333;
-        }
-        
-        .resume-date {
-            color: #999;
-            font-size: 0.85em;
-        }
-        
-        .resume-actions {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .resume-btn {
-            padding: 6px 12px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.85em;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-        
-        .resume-download {
-            background: #4caf50;
-            color: white;
-        }
-        
-        .resume-download:hover {
-            opacity: 0.9;
-        }
-        
-        .resume-delete {
-            background: #f44336;
-            color: white;
-        }
-        
-        .resume-delete:hover {
-            opacity: 0.9;
-        }
-        
-        /* Rich Text Editor */
-        .rich-editor {
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 10px;
-            min-height: 200px;
-        }
-        
-        .editor-toolbar {
-            display: flex;
-            gap: 5px;
-            margin-bottom: 10px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #ddd;
-            flex-wrap: wrap;
-        }
-        
-        .editor-btn {
-            padding: 6px 10px;
-            background: #f0f0f0;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.85em;
-            transition: all 0.2s;
-        }
-        
-        .editor-btn:hover {
-            background: #667eea;
-            color: white;
-            border-color: #667eea;
-        }
-        
-        .editor-content {
-            min-height: 150px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            overflow-y: auto;
-            max-height: 300px;
         }
         
         .job-card {
@@ -780,7 +513,7 @@
                 👤 <span id="currentUser"></span>
                 <button class="logout-btn" onclick="logout()">Logout</button>
             </div>
-            <h1>🚀 Momentum - Keep Moving Forward</h1>
+            <h1>🎯 Momentum</h1>
             <p>Stay organized. Stay motivated. Land that dream role.</p>
         </div>
         
@@ -812,53 +545,12 @@
             <button class="tab" onclick="switchTab('prep')">📄 Prep Materials</button>
             <button class="tab" onclick="switchTab('todo')">✅ To-Do</button>
             <button class="tab" onclick="switchTab('targets')">🎯 Targets</button>
-            <button class="tab" onclick="switchTab('calendar')">📅 Calendar</button>
-            <button class="tab" onclick="switchTab('resumes')">📋 Resumes</button>
-            <button class="tab" onclick="switchTab('import')">📊 Bulk Import</button>
             <button class="tab" onclick="switchTab('sync')">☁️ Sync</button>
         </div>
         
         <div class="content">
             <div id="pipeline" class="tab-content active">
                 <button class="add-button" onclick="openAddJobModal()">+ Add Application</button>
-                
-                <!-- Statistics Dashboard -->
-                <div class="stats-dashboard">
-                    <div class="stat-card">
-                        <div class="stat-value" id="statTotal">0</div>
-                        <div class="stat-label">Total Applications</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="statApplied">0</div>
-                        <div class="stat-label">Applied</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="statReview">0</div>
-                        <div class="stat-label">In Review</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="statInterviews">0</div>
-                        <div class="stat-label">Interviews</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="statOffers">0</div>
-                        <div class="stat-label">Offers</div>
-                    </div>
-                </div>
-                
-                <!-- Search and Filter -->
-                <div class="search-filter-container">
-                    <input type="text" id="jobSearch" placeholder="Search by company, role, or location..." 
-                           onkeyup="renderJobs()" class="search-input">
-                    <select id="statusFilter" onchange="renderJobs()" class="filter-select">
-                        <option value="all">All Statuses</option>
-                        <option value="applied">Applied</option>
-                        <option value="in review">In Review</option>
-                        <option value="interview">Interview</option>
-                        <option value="offer">Offer</option>
-                        <option value="rejected">Rejected</option>
-                    </select>
-                </div>
                 
                 <div id="urgentBanner" class="urgent-banner">
                     <div class="urgent-title">🔥 Keep Your Momentum:</div>
@@ -877,20 +569,6 @@
             
             <div id="prep" class="tab-content">
                 <button class="add-button" onclick="openAddPrepModal()">+ Add Prep Material</button>
-                
-                <!-- Quick Templates Section -->
-                <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px 20px; margin-bottom: 20px; border-radius: 8px;">
-                    <div style="font-weight: bold; color: #856404; margin-bottom: 10px;">📚 Quick Templates:</div>
-                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                        <button class="template-btn" onclick="addPrepTemplate('STAR Story Template')">STAR Stories</button>
-                        <button class="template-btn" onclick="addPrepTemplate('System Design Prep')">System Design</button>
-                        <button class="template-btn" onclick="addPrepTemplate('Product Case Study')">Product Cases</button>
-                        <button class="template-btn" onclick="addPrepTemplate('Behavioral Questions')">Behavioral Q&A</button>
-                        <button class="template-btn" onclick="addPrepTemplate('Cover Letter Template')">Cover Letter</button>
-                        <button class="template-btn" onclick="addPrepTemplate('Research Checklist')">Company Research</button>
-                    </div>
-                </div>
-                
                 <div style="background: #e3f2fd; border-left: 4px solid #2196f3; padding: 15px 20px; margin-bottom: 20px; border-radius: 8px;">
                     <div style="font-weight: bold; color: #1565c0; margin-bottom: 8px;">💡 Two ways to store materials:</div>
                     <div style="color: #1565c0; font-size: 0.95em;">
@@ -911,51 +589,16 @@
                 <div id="targetsList" class="loading">Loading target companies...</div>
             </div>
             
-            <div id="calendar" class="tab-content">
-                <div style="background: #e8f5e9; border-left: 4px solid #4caf50; padding: 15px 20px; margin-bottom: 20px; border-radius: 8px;">
-                    <div style="font-weight: bold; color: #2e7d32; margin-bottom: 8px;">📅 Timeline View</div>
-                    <div style="color: #2e7d32; font-size: 0.95em;">
-                        All your applications and interviews organized by date.
-                    </div>
-                </div>
-                <div id="timelineView" class="timeline-view"></div>
-            </div>
-            
-            <div id="resumes" class="tab-content">
-                <button class="add-button" onclick="openResumeUploadModal()">+ Upload Resume/CV</button>
-                <div style="background: #fff3e0; border-left: 4px solid #ff9800; padding: 15px 20px; margin-bottom: 20px; border-radius: 8px;">
-                    <div style="font-weight: bold; color: #e65100; margin-bottom: 8px;">📄 Resume Management</div>
-                    <div style="color: #e65100; font-size: 0.95em;">Store different resume versions for specific companies.</div>
-                </div>
-                <div id="resumesList" class="loading">Loading resumes...</div>
-            </div>
-            
-            <div id="import" class="tab-content">
-                <div style="background: #f3e5f5; border-left: 4px solid #9c27b0; padding: 15px 20px; margin-bottom: 20px; border-radius: 8px;">
-                    <div style="font-weight: bold; color: #6a1b9a; margin-bottom: 8px;">📊 Bulk Import</div>
-                    <div style="color: #6a1b9a; font-size: 0.95em;">Import jobs from CSV.</div>
-                </div>
-                <div style="background: white; border: 2px solid #9c27b0; border-radius: 12px; padding: 25px; margin-bottom: 20px;">
-                    <h3 style="color: #9c27b0; margin-bottom: 15px;">📥 Import from CSV</h3>
-                    <p style="color: #666; margin-bottom: 15px; font-size: 0.9em;">Download template, fill with your data, upload here.</p>
-                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                        <button onclick="downloadCSVTemplate()" style="padding: 12px 24px; background: #9c27b0; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">⬇️ Download Template</button>
-                        <button onclick="document.getElementById('csvFile').click()" style="padding: 12px 24px; background: #fff; color: #9c27b0; border: 2px solid #9c27b0; border-radius: 8px; cursor: pointer; font-weight: 600;">📤 Upload CSV</button>
-                        <input type="file" id="csvFile" style="display: none;" accept=".csv" onchange="importCSV(event)">
-                    </div>
-                </div>
-            </div>
-            
             <div id="sync" class="tab-content">
                 <h2 style="margin-bottom: 20px; color: #333;">☁️ Backup & Sync Your Data</h2>
                 
                 <!-- Google Drive Sync Section -->
                 <div style="background: #e8f5e9; border-left: 4px solid #4caf50; padding: 20px; margin-bottom: 30px; border-radius: 8px;">
-                    <div style="font-weight: bold; color: #2e7d32; margin-bottom: 10px;">🔐 Google Drive Sync (Optional)</div>
-                    <p style="color: #2e7d32; margin-bottom: 15px; font-size: 0.95em;">Sign in with Google to enable automatic cloud sync. Your data stays in YOUR Google Drive.</p>
+                    <div style="font-weight: bold; color: #2e7d32; margin-bottom: 10px;">🔐 Google Drive Sync</div>
+                    <p style="color: #2e7d32; margin-bottom: 15px; font-size: 0.95em;">Sign in with Google to auto-sync your data to YOUR Google Drive. Each user gets their own separate data.</p>
                     <div id="googleSignInContainer" style="margin-bottom: 15px;"></div>
                     <div id="userEmail" style="display: none; margin-bottom: 15px; font-weight: 600; color: #2e7d32;"></div>
-                    <div id="syncStatusText" style="margin-bottom: 15px; padding: 10px; background: #fff; border-radius: 6px; border-left: 3px solid #4caf50; color: #2e7d32;">Ready to sync</div>
+                    <div id="syncStatusText" style="margin-bottom: 15px; padding: 10px; background: #fff; border-radius: 6px; border-left: 3px solid #4caf50; color: #2e7d32;">Ready</div>
                     <button onclick="manualSync()" style="width: 100%; padding: 12px; background: #4caf50; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; margin-bottom: 10px;">🔄 Sync Now</button>
                 </div>
                 
@@ -1317,11 +960,9 @@
         </div>
     </div>
 
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <script src="https://www.gstatic.com/client?onload=onGapiLoad&async=true"></script>
     <script>
         // ===== GOOGLE DRIVE SYNC =====
-        const GOOGLE_CLIENT_ID = '1063975145667-okf0c2dgda4a0bfmlm9tlianr564ugm2.apps.googleusercontent.com'; // Replace with your Client ID
+        const GOOGLE_CLIENT_ID = '1063975145667-okf0c2dgda4a0bfmlm9tlianr564ugm2.apps.googleusercontent.com';
         let googleAuth = null;
         let googleAccessToken = null;
         let spreadsheetId = null;
@@ -1343,7 +984,7 @@
                 console.log('✅ Google API initialized');
                 setupGoogleSignIn();
             }, error => {
-                console.error('❌ Error initializing Google API:', error);
+                console.error('❌ Error:', error);
             });
         }
         
@@ -1352,7 +993,6 @@
                 client_id: GOOGLE_CLIENT_ID,
                 callback: handleCredentialResponse
             });
-            
             if (document.getElementById('googleSignInButton')) {
                 google.accounts.id.renderButton(
                     document.getElementById('googleSignInButton'),
@@ -1365,15 +1005,11 @@
             googleAccessToken = response.credential;
             const payload = JSON.parse(atob(response.credential.split('.')[1]));
             console.log('✅ Signed in as:', payload.email);
-            
-            if (document.getElementById('googleSignInButton')) {
-                document.getElementById('googleSignInButton').style.display = 'none';
-            }
+            if (document.getElementById('googleSignInButton')) document.getElementById('googleSignInButton').style.display = 'none';
             if (document.getElementById('userEmail')) {
                 document.getElementById('userEmail').textContent = payload.email;
                 document.getElementById('userEmail').style.display = 'block';
             }
-            
             initializeSync();
         }
         
@@ -1389,144 +1025,97 @@
             try {
                 const response = await gapi.client.drive.files.list({
                     q: "name='Momentum Data' and mimeType='application/vnd.google-apps.spreadsheet' and trashed=false",
-                    spaces: 'drive',
-                    fields: 'files(id, name)',
-                    pageSize: 1
+                    spaces: 'drive', fields: 'files(id, name)', pageSize: 1
                 });
-                
                 if (response.result.files.length > 0) {
                     spreadsheetId = response.result.files[0].id;
-                    console.log('✅ Found existing spreadsheet:', spreadsheetId);
                 } else {
                     await createNewSpreadsheet();
                 }
             } catch (error) {
-                console.error('❌ Error finding spreadsheet:', error);
+                console.error('❌ Error:', error);
             }
         }
         
         async function createNewSpreadsheet() {
             try {
-                const resource = {
-                    properties: { title: 'Momentum Data' },
-                    sheets: [
-                        { properties: { title: 'Applications' } },
-                        { properties: { title: 'Interviews' } },
-                        { properties: { title: 'Todos' } },
-                        { properties: { title: 'Targets' } },
-                        { properties: { title: 'Prep Materials' } }
-                    ]
-                };
-                
                 const response = await gapi.client.sheets.spreadsheets.create({
-                    resource: resource,
+                    resource: { properties: { title: 'Momentum Data' }, sheets: [{ properties: { title: 'Applications' } }] },
                     fields: 'spreadsheetId'
                 });
-                
                 spreadsheetId = response.result.spreadsheetId;
-                console.log('✅ Created new spreadsheet:', spreadsheetId);
             } catch (error) {
-                console.error('❌ Error creating spreadsheet:', error);
+                console.error('❌ Error:', error);
             }
         }
         
         async function loadFromGoogleSheets() {
             if (!spreadsheetId) return;
-            
             try {
                 const response = await gapi.client.sheets.spreadsheets.values.batchGet({
                     spreadsheetId: spreadsheetId,
-                    ranges: ['Applications!A:H', 'Interviews!A:H', 'Todos!A:F', 'Targets!A:E', 'Prep Materials!A:E']
+                    ranges: ['Applications!A:H']
                 });
-                
                 if (response.result.valueRanges[0].values) {
                     jobs = [];
-                    const appRows = response.result.valueRanges[0].values.slice(1);
-                    appRows.forEach(row => {
+                    const rows = response.result.valueRanges[0].values.slice(1);
+                    rows.forEach(row => {
                         jobs.push({
                             id: parseInt(row[0]) || Date.now(),
-                            company: row[1] || '',
-                            role: row[2] || '',
-                            status: row[3] || 'applied',
-                            location: row[4] || '',
-                            salary: row[5] || '',
-                            date: row[6] || '',
-                            notes: row[7] || ''
+                            company: row[1] || '', role: row[2] || '', status: row[3] || 'applied',
+                            location: row[4] || '', salary: row[5] || '', date: row[6] || '', notes: row[7] || ''
                         });
                     });
                 }
-                
                 renderAll();
                 showSyncStatus('✅ Synced');
             } catch (error) {
-                console.error('❌ Error loading from Sheets:', error);
+                console.error('❌ Error:', error);
                 showSyncStatus('⚠️ Sync failed');
             }
         }
         
         async function saveToGoogleSheets() {
             if (!spreadsheetId) return;
-            
             try {
-                const appValues = [['ID', 'Company', 'Role', 'Status', 'Location', 'Salary', 'Date', 'Notes']];
-                jobs.forEach(job => {
-                    appValues.push([job.id, job.company, job.role, job.status, job.location, job.salary, job.date, job.notes]);
-                });
-                
-                const requests = [{
-                    range: 'Applications!A:H',
-                    values: appValues
-                }];
-                
+                const values = [['ID', 'Company', 'Role', 'Status', 'Location', 'Salary', 'Date', 'Notes']];
+                jobs.forEach(j => values.push([j.id, j.company, j.role, j.status, j.location, j.salary, j.date, j.notes]));
                 await gapi.client.sheets.spreadsheets.values.batchUpdate({
                     spreadsheetId: spreadsheetId,
-                    resource: { data: requests, valueInputOption: 'RAW' }
+                    resource: { data: [{ range: 'Applications!A:H', values: values }], valueInputOption: 'RAW' }
                 });
-                
-                console.log('✅ Data saved to Sheets');
                 showSyncStatus('✅ Synced');
             } catch (error) {
-                console.error('❌ Error saving to Sheets:', error);
+                console.error('❌ Error:', error);
                 showSyncStatus('❌ Sync failed');
             }
         }
         
         async function syncBothWays() {
-            if (!navigator.onLine) {
-                showSyncStatus('⚠️ Offline');
-                return;
-            }
-            
+            if (!navigator.onLine) { showSyncStatus('⚠️ Offline'); return; }
             showSyncStatus('🔄 Syncing...');
             try {
                 await loadFromGoogleSheets();
                 await saveToGoogleSheets();
                 showSyncStatus('✅ Synced');
             } catch (error) {
-                console.error('❌ Sync error:', error);
+                console.error('❌ Error:', error);
                 showSyncStatus('❌ Sync error');
             }
         }
         
-        function showSyncStatus(message) {
-            const statusElement = document.getElementById('syncStatusText');
-            if (statusElement) {
-                statusElement.textContent = message;
-            }
+        function showSyncStatus(msg) {
+            const el = document.getElementById('syncStatusText');
+            if (el) el.textContent = msg;
         }
         
-        function manualSync() {
-            syncBothWays();
-        }
+        function manualSync() { syncBothWays(); }
         
-        window.addEventListener('offline', () => {
-            showSyncStatus('⚠️ Offline');
-        });
+        window.addEventListener('offline', () => { showSyncStatus('⚠️ Offline'); });
+        window.addEventListener('online', () => { syncBothWays(); });
         
-        window.addEventListener('online', () => {
-            syncBothWays();
-        });
-
+        // ===== END GOOGLE DRIVE SYNC =====
+        
         let currentUsername = null;
         let jobs = [];
         let interviews = [];
@@ -1942,112 +1531,6 @@ KEY PRINCIPLES:
         };
 
         // Initialize
-        let resumes = [];
-        
-        // Render Timeline
-        function renderTimeline() {
-            const container = document.getElementById('timelineView');
-            const allEvents = [];
-            jobs.forEach(job => {
-                if (job.date) allEvents.push({date: new Date(job.date), title: `Applied to ${job.company}`, description: job.role});
-            });
-            interviews.forEach(int => {
-                if (int.date) allEvents.push({date: new Date(int.date), title: `Interview: ${int.company}`, description: int.stage || 'Interview'});
-            });
-            allEvents.sort((a, b) => b.date - a.date);
-            if (allEvents.length === 0) {
-                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📅</div><p>No events. Add applications and interviews to see timeline.</p></div>';
-                return;
-            }
-            container.innerHTML = allEvents.map(e => `<div class="timeline-item"><div class="timeline-content"><div class="timeline-date">${e.date.toLocaleDateString()}</div><div class="timeline-title">${e.title}</div><div class="timeline-desc">${e.description}</div></div></div>`).join('');
-        }
-        
-        // Resumes
-        function renderResumes() {
-            const c = document.getElementById('resumesList');
-            if (resumes.length === 0) {
-                c.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📄</div><p>No resumes. Upload your resume versions.</p></div>';
-                return;
-            }
-            c.innerHTML = resumes.map(r => `<div class="resume-card"><div class="resume-info"><div class="resume-name">📄 ${r.name}</div><div class="resume-date">Uploaded: ${r.date}</div></div><div class="resume-actions"><button class="resume-btn resume-download" onclick="downloadResume(${r.id})">⬇️ Download</button><button class="resume-btn resume-delete" onclick="deleteResume(${r.id})">Delete</button></div></div>`).join('');
-        }
-        
-        function openResumeUploadModal() {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = '.pdf,.doc,.docx';
-            input.onchange = (e) => {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = (evt) => {
-                        resumes.push({id: Date.now(), name: file.name, date: new Date().toLocaleDateString(), data: evt.target.result});
-                        renderResumes();
-                        alert('Resume uploaded!');
-                    };
-                    reader.readAsArrayBuffer(file);
-                }
-            };
-            input.click();
-        }
-        
-        function downloadResume(id) {
-            const r = resumes.find(x => x.id === id);
-            if (r) {
-                const blob = new Blob([r.data]);
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = r.name;
-                a.click();
-                URL.revokeObjectURL(url);
-            }
-        }
-        
-        function deleteResume(id) {
-            if (confirm('Delete?')) {
-                resumes = resumes.filter(r => r.id !== id);
-                renderResumes();
-            }
-        }
-        
-        function downloadCSVTemplate() {
-            const csv = 'Company,Role,Status,Location,Salary,Date Applied,Notes\nStripe,Product Manager,Applied,San Francisco CA,$180K-$220K,2026-02-10,Good fit\nGoogle,Senior PM,In Review,Mountain View CA,$200K-$250K,2026-02-08,YouTube';
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'jobs-template.csv';
-            a.click();
-            URL.revokeObjectURL(url);
-        }
-        
-        function importCSV(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                try {
-                    const lines = e.target.result.split('\n').filter(l => l.trim());
-                    let imported = 0;
-                    for (let i = 1; i < lines.length; i++) {
-                        const vals = lines[i].split(',');
-                        const job = {id: Date.now() + i, company: vals[0]?.trim() || '', role: vals[1]?.trim() || '', status: vals[2]?.trim() || 'applied', location: vals[3]?.trim() || '', salary: vals[4]?.trim() || '', date: vals[5]?.trim() || '', notes: vals[6]?.trim() || '', url: '', todos: []};
-                        if (job.company && job.role) {
-                            jobs.push(job);
-                            imported++;
-                        }
-                    }
-                    saveUserData();
-                    renderAll();
-                    alert(`Imported ${imported} jobs!`);
-                } catch (err) {
-                    alert('Error: ' + err.message);
-                }
-            };
-            reader.readAsText(file);
-        }
-        
         async function init() {
             const savedUser = localStorage.getItem('jobTrackerUsername');
             if (savedUser) {
@@ -2161,8 +1644,6 @@ KEY PRINCIPLES:
             renderTodos();
             renderTargets();
             renderPrepMaterials();
-            renderTimeline();
-            renderResumes();
             updateStats();
         }
 
@@ -2223,56 +1704,18 @@ KEY PRINCIPLES:
             document.querySelectorAll('.tab')[3].classList.add('active');
         }
 
-        // Filter and search jobs
-        function getFilteredJobs() {
-            const searchTerm = document.getElementById('jobSearch')?.value.toLowerCase() || '';
-            const statusFilter = document.getElementById('statusFilter')?.value || 'all';
-            
-            return jobs.filter(job => {
-                const matchesSearch = !searchTerm || 
-                    job.company.toLowerCase().includes(searchTerm) ||
-                    job.role.toLowerCase().includes(searchTerm) ||
-                    job.location.toLowerCase().includes(searchTerm);
-                
-                const matchesStatus = statusFilter === 'all' || job.status === statusFilter;
-                
-                return matchesSearch && matchesStatus;
-            });
-        }
-        
-        // Update statistics
-        function updateStats() {
-            const appliedCount = jobs.filter(j => j.status === 'applied').length;
-            const reviewCount = jobs.filter(j => j.status === 'in review').length;
-            const interviewCount = jobs.filter(j => j.status === 'interview').length;
-            const offerCount = jobs.filter(j => j.status === 'offer').length;
-            
-            document.getElementById('statTotal').textContent = jobs.length;
-            document.getElementById('statApplied').textContent = appliedCount;
-            document.getElementById('statReview').textContent = reviewCount;
-            document.getElementById('statInterviews').textContent = interviewCount;
-            document.getElementById('statOffers').textContent = offerCount;
-        }
-        }
-
         // Render jobs
         function renderJobs() {
             // Render urgent todos banner first
             renderUrgentTodos();
             
             const container = document.getElementById('jobsList');
-            const filteredJobs = getFilteredJobs();
-            
-            if (filteredJobs.length === 0) {
-                if (jobs.length === 0) {
-                    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><p>No applications yet. Click "Add Application" to get started!</p></div>';
-                } else {
-                    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🔍</div><p>No jobs match your search/filter</p></div>';
-                }
+            if (jobs.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><p>No applications yet. Click "Add Application" to get started!</p></div>';
                 return;
             }
 
-            container.innerHTML = filteredJobs.map(job => `
+            container.innerHTML = jobs.map(job => `
                 <div class="job-card">
                     <div class="job-header">
                         <div>
@@ -2507,177 +1950,6 @@ KEY PRINCIPLES:
             document.getElementById('addTargetModal').classList.add('active');
         }
         
-        // Prep Template Content
-        const prepTemplates = {
-            'STAR Story Template': `SITUATION: Describe the context and challenge
-- What was the problem/goal?
-- Who was involved?
-- When did it happen?
-
-TASK: What were you responsible for?
-- Your specific role
-- Key metrics involved
-
-ACTION: What exactly did you do?
-- Specific steps you took
-- Tools/technologies used
-- How you worked with others
-
-RESULT: What were the outcomes?
-- Metrics/numbers
-- What you learned
-- Impact on the team/company`,
-
-            'System Design Prep': `1. Clarify Requirements:
-   - Functional requirements
-   - Non-functional requirements
-   - Scale/traffic
-
-2. Capacity Estimation:
-   - Requests per second
-   - Storage requirements
-   - Bandwidth needed
-
-3. System APIs:
-   - Core functions
-   - Input/output
-
-4. Database Design:
-   - Schema
-   - SQL vs NoSQL
-   - Indexes
-
-5. High-Level Design:
-   - Component diagrams
-   - Data flow
-
-6. Detailed Design:
-   - Load balancing
-   - Caching
-   - Database replication
-
-7. Bottlenecks & Trade-offs:
-   - Identify weak points
-   - Optimization options`,
-
-            'Product Case Study': `PRODUCT: [Company Name]
-- What is it?
-- Who uses it?
-- Key metrics
-
-THE PROBLEM:
-- User pain point
-- Market opportunity
-- Why does it matter?
-
-YOUR SOLUTION:
-- Feature/improvement
-- How it solves the problem
-- User journey
-
-METRICS & SUCCESS:
-- How would you measure success?
-- Expected impact
-- Key metrics to track
-
-CHALLENGES:
-- Technical challenges
-- User adoption
-- Competition
-
-ALTERNATIVES:
-- Other solutions considered
-- Why your approach is better`,
-
-            'Behavioral Questions': `Common Questions:
-1. "Tell me about yourself"
-   - Background
-   - Key achievements
-   - Why this role interests you
-
-2. "Why do you want to join our company?"
-   - Company research
-   - Alignment with values
-   - Specific interest in role
-
-3. "Tell me about a time you failed"
-   - Specific example
-   - What you learned
-   - How you improved
-
-4. "How do you handle conflict?"
-   - Specific situation
-   - Your approach
-   - Positive outcome
-
-5. "What are your strengths/weaknesses?"
-   - Be specific
-   - Give examples
-   - Frame weaknesses positively`,
-
-            'Cover Letter Template': `[Your Name]
-[Your Email] | [Your Phone] | [LinkedIn Profile]
-
-[Date]
-
-Dear Hiring Manager,
-
-Opening: Express genuine interest in the role and company.
-
-Body: Highlight 2-3 key accomplishments that match the job requirements.
-
-Closing: Express enthusiasm and call to action.
-
-Best regards,
-[Your Name]
-
----
-
-TIPS:
-- Keep it to one page
-- Address to a specific person if possible
-- Show you've researched the company
-- Focus on what you can do for them`,
-
-            'Research Checklist': `Company Research:
-□ Company mission/values
-□ Recent news/funding
-□ Product/service offering
-□ Market position
-□ Company culture
-□ Recent product launches
-
-Role Research:
-□ Job description details
-□ Team structure
-□ Key metrics/OKRs
-□ Challenges the role faces
-□ Required vs nice-to-have skills
-
-Preparation:
-□ Questions to ask them
-□ Your value proposition
-□ STAR stories ready
-□ Technical prep (if applicable)
-□ Salary research
-
-Day Before:
-□ Review company mission
-□ Plan your route/video setup
-□ Prepare clothes
-□ Test technology
-□ Get good sleep`
-        };
-        
-        function addPrepTemplate(templateName) {
-            const content = prepTemplates[templateName] || templateName;
-            document.getElementById('prepTitle').value = templateName;
-            document.getElementById('prepType').value = 'template';
-            document.getElementById('prepContent').value = content;
-            document.getElementById('prepCompany').value = '';
-            openAddPrepModal();
-        }
-
         function openAddPrepModal() {
             document.getElementById('addPrepModal').classList.add('active');
         }
@@ -3494,6 +2766,7 @@ Day Before:
             } catch (error) {
                 alert('❌ Error importing CSV: ' + error.message);
             }
+        }
         
         function parseCSVLine(line) {
             const result = [];
