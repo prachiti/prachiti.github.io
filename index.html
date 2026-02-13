@@ -1321,7 +1321,7 @@
     <script src="https://www.gstatic.com/client?onload=onGapiLoad&async=true"></script>
     <script>
         // ===== GOOGLE DRIVE SYNC =====
-        const GOOGLE_CLIENT_ID = '1063975145667-okf0c2dgda4a0bfmlm9tlianr564ugm2.apps.googleusercontent.com'; // Replace with your Client ID
+        const GOOGLE_CLIENT_ID = 'YOUR_CLIENT_ID_HERE.apps.googleusercontent.com'; // Replace with your Client ID
         let googleAuth = null;
         let googleAccessToken = null;
         let spreadsheetId = null;
@@ -1526,9 +1526,7 @@
         window.addEventListener('online', () => {
             syncBothWays();
         });
-    </script>
 
-    <script>
         let currentUsername = null;
         let jobs = [];
         let interviews = [];
