@@ -949,6 +949,16 @@
             <div id="sync" class="tab-content">
                 <h2 style="margin-bottom: 20px; color: #333;">☁️ Backup & Sync Your Data</h2>
                 
+                <!-- Google Drive Sync Section -->
+                <div style="background: #e8f5e9; border-left: 4px solid #4caf50; padding: 20px; margin-bottom: 30px; border-radius: 8px;">
+                    <div style="font-weight: bold; color: #2e7d32; margin-bottom: 10px;">🔐 Google Drive Sync (Optional)</div>
+                    <p style="color: #2e7d32; margin-bottom: 15px; font-size: 0.95em;">Sign in with Google to enable automatic cloud sync. Your data stays in YOUR Google Drive.</p>
+                    <div id="googleSignInContainer" style="margin-bottom: 15px;"></div>
+                    <div id="userEmail" style="display: none; margin-bottom: 15px; font-weight: 600; color: #2e7d32;"></div>
+                    <div id="syncStatusText" style="margin-bottom: 15px; padding: 10px; background: #fff; border-radius: 6px; border-left: 3px solid #4caf50; color: #2e7d32;">Ready to sync</div>
+                    <button onclick="manualSync()" style="width: 100%; padding: 12px; background: #4caf50; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; margin-bottom: 10px;">🔄 Sync Now</button>
+                </div>
+                
                 <div style="background: #e3f2fd; border-left: 4px solid #2196f3; padding: 20px; margin-bottom: 30px; border-radius: 8px;">
                     <div style="font-weight: bold; color: #1565c0; margin-bottom: 10px;">💡 How it works:</div>
                     <div style="color: #1565c0; font-size: 0.95em; line-height: 1.6;">
@@ -1306,6 +1316,217 @@
             </div>
         </div>
     </div>
+
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://www.gstatic.com/client?onload=onGapiLoad&async=true"></script>
+    <script>
+        // ===== GOOGLE DRIVE SYNC =====
+        const GOOGLE_CLIENT_ID = '1063975145667-okf0c2dgda4a0bfmlm9tlianr564ugm2.apps.googleusercontent.com'; // Replace with your Client ID
+        let googleAuth = null;
+        let googleAccessToken = null;
+        let spreadsheetId = null;
+        let syncInterval = null;
+        
+        function onGapiLoad() {
+            gapi.load('client:auth2', initGoogleAPI);
+        }
+        
+        function initGoogleAPI() {
+            gapi.client.init({
+                clientId: GOOGLE_CLIENT_ID,
+                scope: 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/spreadsheets',
+                discoveryDocs: [
+                    'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest',
+                    'https://www.googleapis.com/discovery/v1/apis/sheets/v4/rest'
+                ]
+            }).then(() => {
+                console.log('✅ Google API initialized');
+                setupGoogleSignIn();
+            }, error => {
+                console.error('❌ Error initializing Google API:', error);
+            });
+        }
+        
+        function setupGoogleSignIn() {
+            google.accounts.id.initialize({
+                client_id: GOOGLE_CLIENT_ID,
+                callback: handleCredentialResponse
+            });
+            
+            if (document.getElementById('googleSignInButton')) {
+                google.accounts.id.renderButton(
+                    document.getElementById('googleSignInButton'),
+                    { theme: 'outline', size: 'large', text: 'signin_with' }
+                );
+            }
+        }
+        
+        function handleCredentialResponse(response) {
+            googleAccessToken = response.credential;
+            const payload = JSON.parse(atob(response.credential.split('.')[1]));
+            console.log('✅ Signed in as:', payload.email);
+            
+            if (document.getElementById('googleSignInButton')) {
+                document.getElementById('googleSignInButton').style.display = 'none';
+            }
+            if (document.getElementById('userEmail')) {
+                document.getElementById('userEmail').textContent = payload.email;
+                document.getElementById('userEmail').style.display = 'block';
+            }
+            
+            initializeSync();
+        }
+        
+        function initializeSync() {
+            findOrCreateSpreadsheet().then(() => {
+                loadFromGoogleSheets();
+                syncInterval = setInterval(() => { syncBothWays(); }, 30000);
+                window.addEventListener('online', syncBothWays);
+            });
+        }
+        
+        async function findOrCreateSpreadsheet() {
+            try {
+                const response = await gapi.client.drive.files.list({
+                    q: "name='Momentum Data' and mimeType='application/vnd.google-apps.spreadsheet' and trashed=false",
+                    spaces: 'drive',
+                    fields: 'files(id, name)',
+                    pageSize: 1
+                });
+                
+                if (response.result.files.length > 0) {
+                    spreadsheetId = response.result.files[0].id;
+                    console.log('✅ Found existing spreadsheet:', spreadsheetId);
+                } else {
+                    await createNewSpreadsheet();
+                }
+            } catch (error) {
+                console.error('❌ Error finding spreadsheet:', error);
+            }
+        }
+        
+        async function createNewSpreadsheet() {
+            try {
+                const resource = {
+                    properties: { title: 'Momentum Data' },
+                    sheets: [
+                        { properties: { title: 'Applications' } },
+                        { properties: { title: 'Interviews' } },
+                        { properties: { title: 'Todos' } },
+                        { properties: { title: 'Targets' } },
+                        { properties: { title: 'Prep Materials' } }
+                    ]
+                };
+                
+                const response = await gapi.client.sheets.spreadsheets.create({
+                    resource: resource,
+                    fields: 'spreadsheetId'
+                });
+                
+                spreadsheetId = response.result.spreadsheetId;
+                console.log('✅ Created new spreadsheet:', spreadsheetId);
+            } catch (error) {
+                console.error('❌ Error creating spreadsheet:', error);
+            }
+        }
+        
+        async function loadFromGoogleSheets() {
+            if (!spreadsheetId) return;
+            
+            try {
+                const response = await gapi.client.sheets.spreadsheets.values.batchGet({
+                    spreadsheetId: spreadsheetId,
+                    ranges: ['Applications!A:H', 'Interviews!A:H', 'Todos!A:F', 'Targets!A:E', 'Prep Materials!A:E']
+                });
+                
+                if (response.result.valueRanges[0].values) {
+                    jobs = [];
+                    const appRows = response.result.valueRanges[0].values.slice(1);
+                    appRows.forEach(row => {
+                        jobs.push({
+                            id: parseInt(row[0]) || Date.now(),
+                            company: row[1] || '',
+                            role: row[2] || '',
+                            status: row[3] || 'applied',
+                            location: row[4] || '',
+                            salary: row[5] || '',
+                            date: row[6] || '',
+                            notes: row[7] || ''
+                        });
+                    });
+                }
+                
+                renderAll();
+                showSyncStatus('✅ Synced');
+            } catch (error) {
+                console.error('❌ Error loading from Sheets:', error);
+                showSyncStatus('⚠️ Sync failed');
+            }
+        }
+        
+        async function saveToGoogleSheets() {
+            if (!spreadsheetId) return;
+            
+            try {
+                const appValues = [['ID', 'Company', 'Role', 'Status', 'Location', 'Salary', 'Date', 'Notes']];
+                jobs.forEach(job => {
+                    appValues.push([job.id, job.company, job.role, job.status, job.location, job.salary, job.date, job.notes]);
+                });
+                
+                const requests = [{
+                    range: 'Applications!A:H',
+                    values: appValues
+                }];
+                
+                await gapi.client.sheets.spreadsheets.values.batchUpdate({
+                    spreadsheetId: spreadsheetId,
+                    resource: { data: requests, valueInputOption: 'RAW' }
+                });
+                
+                console.log('✅ Data saved to Sheets');
+                showSyncStatus('✅ Synced');
+            } catch (error) {
+                console.error('❌ Error saving to Sheets:', error);
+                showSyncStatus('❌ Sync failed');
+            }
+        }
+        
+        async function syncBothWays() {
+            if (!navigator.onLine) {
+                showSyncStatus('⚠️ Offline');
+                return;
+            }
+            
+            showSyncStatus('🔄 Syncing...');
+            try {
+                await loadFromGoogleSheets();
+                await saveToGoogleSheets();
+                showSyncStatus('✅ Synced');
+            } catch (error) {
+                console.error('❌ Sync error:', error);
+                showSyncStatus('❌ Sync error');
+            }
+        }
+        
+        function showSyncStatus(message) {
+            const statusElement = document.getElementById('syncStatusText');
+            if (statusElement) {
+                statusElement.textContent = message;
+            }
+        }
+        
+        function manualSync() {
+            syncBothWays();
+        }
+        
+        window.addEventListener('offline', () => {
+            showSyncStatus('⚠️ Offline');
+        });
+        
+        window.addEventListener('online', () => {
+            syncBothWays();
+        });
+    </script>
 
     <script>
         let currentUsername = null;
@@ -3275,7 +3496,6 @@ Day Before:
             } catch (error) {
                 alert('❌ Error importing CSV: ' + error.message);
             }
-        }
         
         function parseCSVLine(line) {
             const result = [];
