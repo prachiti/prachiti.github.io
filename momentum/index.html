@@ -1041,15 +1041,31 @@
         }
         
         function initializeSync() {
+            // Wait for gapi to be ready before trying to sync
+            if (typeof gapi === 'undefined' || !gapi.client) {
+                console.log('Waiting for Google API to load...');
+                setTimeout(initializeSync, 500);
+                return;
+            }
+            
+            console.log('Google API ready, starting sync...');
             findOrCreateSpreadsheet().then(() => {
                 loadFromGoogleSheets();
                 syncInterval = setInterval(() => { syncBothWays(); }, 30000);
                 window.addEventListener('online', syncBothWays);
+            }).catch(error => {
+                console.error('❌ Sync initialization failed:', error);
+                showSyncStatus('❌ Sync failed: ' + error.message);
             });
         }
         
         async function findOrCreateSpreadsheet() {
             try {
+                // Make sure gapi is loaded
+                if (typeof gapi === 'undefined' || !gapi.client || !gapi.client.drive) {
+                    throw new Error('Google API not yet loaded. Please wait and try again.');
+                }
+                
                 const response = await gapi.client.drive.files.list({
                     q: "name='Momentum Data' and mimeType='application/vnd.google-apps.spreadsheet' and trashed=false",
                     spaces: 'drive', fields: 'files(id, name)', pageSize: 1
